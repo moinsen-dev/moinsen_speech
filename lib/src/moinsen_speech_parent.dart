@@ -85,7 +85,9 @@ class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
               _startListening();
             },
             onPanEnd: (details) {
-              _stopListening();
+              Future.delayed(const Duration(seconds: 1), () {
+                _stopListening();
+              });
             },
             child: Icon(
               Icons.mic,

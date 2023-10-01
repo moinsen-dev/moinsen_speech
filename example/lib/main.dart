@@ -38,6 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String? text;
   String? origin;
 
+  TextEditingController textCtrl = TextEditingController();
+
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -69,6 +71,21 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(
+              height: 40,
+            ),
+            MoinsenSpeechParent(
+              onSpeechRecognized: (text) {
+                textCtrl.text = text ?? '';
+                regonizedText('Textinputfield', text);
+              },
+              child: SizedBox(
+                width: 300,
+                child: TextField(
+                  controller: textCtrl,
+                ),
+              ),
             ),
             const SizedBox(
               height: 40,
