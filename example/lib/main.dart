@@ -81,9 +81,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 regonizedText('Textinputfield', text);
               },
               child: SizedBox(
-                width: 300,
+                width: 400,
                 child: TextField(
                   controller: textCtrl,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
             ),
@@ -94,9 +98,13 @@ class _MyHomePageState extends State<MyHomePage> {
               'Recognized text from ${origin ?? "---"}:',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            Text(
-              text ?? '---',
-              style: Theme.of(context).textTheme.headlineLarge,
+            SizedBox(
+              width: 400,
+              child: Text(
+                text ?? '---',
+                maxLines: 3,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
             ),
           ],
         ),
