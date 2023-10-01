@@ -35,6 +35,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  String? text;
+  String? origin;
 
   void _incrementCounter() {
     setState(() {
@@ -57,8 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             MoinsenSpeechParent(
-              onSpeechRecognized: (String recognizedWords) {
-                debugPrint(recognizedWords);
+              onSpeechRecognized: (text) {
+                return regonizedText('Text', text);
               },
               child: const Text(
                 'You have pushed the button this many times:',
@@ -68,14 +70,37 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            const SizedBox(
+              height: 40,
+            ),
+            Text(
+              'Recognized text from ${origin ?? "---"}:',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            Text(
+              text ?? '---',
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButton: MoinsenSpeechParent(
+        onSpeechRecognized: (text) =>
+            regonizedText('FloatingActionButton', text),
+        child: FloatingActionButton(
+          onPressed: _incrementCounter,
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ),
       ),
     );
+  }
+
+  regonizedText(String from, String? recognizedWords) {
+    debugPrint(recognizedWords);
+    setState(() {
+      origin = from;
+      text = recognizedWords;
+    });
   }
 }

@@ -7,9 +7,11 @@ class MoinsenSpeechApp extends StatefulWidget {
   const MoinsenSpeechApp({
     super.key,
     required this.child,
+    this.localeId,
   });
 
   final Widget child;
+  final String? localeId;
 
   @override
   State<MoinsenSpeechApp> createState() => MoinsenSpeechAppState();

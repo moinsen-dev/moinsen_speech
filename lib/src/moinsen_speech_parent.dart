@@ -11,7 +11,7 @@ class MoinsenSpeechParent extends StatefulWidget {
   });
 
   final Widget child;
-  final Function(String) onSpeechRecognized;
+  final Function(String?) onSpeechRecognized;
 
   @override
   State<MoinsenSpeechParent> createState() => MoinsenSpeechParentState();
@@ -20,27 +20,40 @@ class MoinsenSpeechParent extends StatefulWidget {
 class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
   bool _isListening = false;
   late SpeechToTextProvider speechProvider;
+  late SpeechToText speech;
 
   @override
   void initState() {
     super.initState();
 
-    speechProvider = Provider.of<SpeechToTextProvider>(context);
+    speech = SpeechToText();
+  }
+
+  @override
+  void dispose() {
+    speech.stop();
+
+    super.dispose();
   }
 
   Future<void> _startListening() async {
-    final SpeechToText speech = SpeechToText();
-
     if (!_isListening) {
-      setState(() => _isListening = true);
+      setState(() {
+        _isListening = true;
+      });
 
       await speech.initialize();
 
       if (speech.isAvailable) {
         speech.listen(
+          localeId: 'de_DE',
           onResult: (result) {
+            debugPrint('onResult: $result');
+
             if (result.finalResult) {
               widget.onSpeechRecognized(result.recognizedWords);
+            } else {
+              widget.onSpeechRecognized(null);
             }
           },
         );
@@ -49,10 +62,10 @@ class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
   }
 
   void _stopListening() {
-    final SpeechToText speech = SpeechToText();
-
     if (_isListening) {
-      setState(() => _isListening = false);
+      setState(() {
+        _isListening = false;
+      });
 
       speech.stop();
     }
@@ -60,19 +73,33 @@ class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onPanDown: (details) => _startListening(),
-      onPanEnd: (details) => _stopListening(),
-      child: Stack(
-        alignment: Alignment.bottomRight,
-        children: [
-          widget.child,
-          if (speechProvider.isAvailable)
-            Icon(Icons.mic, color: _isListening ? Colors.red : Colors.grey),
-          if (speechProvider.isNotAvailable)
-            const Icon(Icons.mic_off, color: Colors.grey),
-        ],
-      ),
+    speechProvider = Provider.of<SpeechToTextProvider>(context);
+
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: [
+        widget.child,
+        if (speechProvider.isAvailable)
+          GestureDetector(
+            onPanDown: (details) {
+              _startListening();
+            },
+            onPanEnd: (details) {
+              _stopListening();
+            },
+            child: Icon(
+              Icons.mic,
+              color: _isListening ? Colors.red : Colors.grey,
+              size: 48,
+            ),
+          ),
+        if (speechProvider.isNotAvailable)
+          const Icon(
+            Icons.mic_off,
+            color: Colors.black,
+            size: 48,
+          ),
+      ],
     );
   }
 }
