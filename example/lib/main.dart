@@ -81,12 +81,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 regonizedText('Textinputfield', text);
               },
               child: SizedBox(
-                width: 400,
+                width: 300,
                 child: TextField(
                   controller: textCtrl,
                   maxLines: 3,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.mic),
                   ),
                 ),
               ),

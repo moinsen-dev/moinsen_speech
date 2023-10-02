@@ -34,6 +34,7 @@ class MoinsenSpeechAppState extends State<MoinsenSpeechApp> {
     speechProvider = SpeechToTextProvider(speech);
 
     initDone = await speechProvider.initialize();
+    await speech.initialize();
 
     return initDone;
   }

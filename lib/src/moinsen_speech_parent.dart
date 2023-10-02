@@ -20,13 +20,11 @@ class MoinsenSpeechParent extends StatefulWidget {
 class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
   bool _isListening = false;
   late SpeechToTextProvider speechProvider;
-  late SpeechToText speech;
+  late SpeechToText speech = SpeechToText();
 
   @override
   void initState() {
     super.initState();
-
-    speech = SpeechToText();
   }
 
   @override
@@ -42,14 +40,14 @@ class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
         _isListening = true;
       });
 
+      widget.onSpeechRecognized(null);
       await speech.initialize();
 
       if (speech.isAvailable) {
         speech.listen(
           localeId: 'de_DE',
+          listenMode: ListenMode.dictation,
           onResult: (result) {
-            debugPrint('onResult: $result');
-
             if (result.finalResult) {
               widget.onSpeechRecognized(result.recognizedWords);
             } else {
@@ -85,9 +83,12 @@ class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
               _startListening();
             },
             onPanEnd: (details) {
-              Future.delayed(const Duration(seconds: 1), () {
-                _stopListening();
-              });
+              Future.delayed(
+                const Duration(seconds: 1),
+                () {
+                  _stopListening();
+                },
+              );
             },
             child: Icon(
               Icons.mic,
