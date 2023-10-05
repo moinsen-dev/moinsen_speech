@@ -1,7 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import 'package:speech_to_text/speech_to_text_provider.dart';
 
 class MoinsenSpeechParent extends StatefulWidget {
   const MoinsenSpeechParent({
@@ -19,7 +18,6 @@ class MoinsenSpeechParent extends StatefulWidget {
 
 class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
   bool _isListening = false;
-  late SpeechToTextProvider speechProvider;
   late SpeechToText speech = SpeechToText();
 
   @override
@@ -41,7 +39,6 @@ class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
       });
 
       widget.onSpeechRecognized(null);
-      await speech.initialize();
 
       if (speech.isAvailable) {
         speech.listen(
@@ -50,8 +47,6 @@ class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
           onResult: (result) {
             if (result.finalResult) {
               widget.onSpeechRecognized(result.recognizedWords);
-            } else {
-              widget.onSpeechRecognized(null);
             }
           },
         );
@@ -69,15 +64,41 @@ class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
     }
   }
 
+  void showRecording() {
+    Scaffold.of(context).showBottomSheet<void>(
+      (BuildContext context) {
+        return Container(
+          height: 200,
+          color: Colors.amber,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Text('BottomSheet'),
+                ElevatedButton(
+                  child: const Text('Close BottomSheet'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    speechProvider = Provider.of<SpeechToTextProvider>(context);
+    bool isMobile = defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
 
-    return Stack(
-      alignment: Alignment.bottomRight,
+    return Row(
       children: [
         widget.child,
-        if (speechProvider.isAvailable)
+        if (speech.isAvailable && isMobile)
           GestureDetector(
             onPanDown: (details) {
               _startListening();
@@ -96,7 +117,26 @@ class MoinsenSpeechParentState extends State<MoinsenSpeechParent> {
               size: 48,
             ),
           ),
-        if (speechProvider.isNotAvailable)
+        if (speech.isAvailable && !isMobile)
+          MouseRegion(
+            onEnter: (details) {
+              _startListening();
+            },
+            onExit: (details) {
+              Future.delayed(
+                const Duration(milliseconds: 300),
+                () {
+                  _stopListening();
+                },
+              );
+            },
+            child: Icon(
+              Icons.mic,
+              color: _isListening ? Colors.red : Colors.grey,
+              size: 48,
+            ),
+          ),
+        if (!speech.isAvailable)
           const Icon(
             Icons.mic_off,
             color: Colors.black,
